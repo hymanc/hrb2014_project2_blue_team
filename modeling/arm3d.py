@@ -21,16 +21,15 @@ class ArmPlot(object):
 	plt.title('YZ Plane')
 	
     # Plots the arm in 3D Space
-    def plot(self, configuration):
+    def plot(self, arm, paper):
 	# Get Body Points
 	# Plot links between body points
 	# Plot End effector
 	plt.show()
 	
-    def getAxes(self):
-	return self.ax
-    
-    def getFigure(self):
-	return self.fig
+    # Clear figure
+    def clear(self):
+	plt.figure(self.fig)
+	plt.clf()
 	
 	

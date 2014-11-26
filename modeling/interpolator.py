@@ -13,5 +13,3 @@ def interpolateLinear(c1, c2, npts):
     for i in range(1,npts-1):
 	pts[:,i] = pts[:,i-1] + delta
     return pts
-
-#TODO: Cubic polynomial interpolator
