@@ -57,8 +57,9 @@ class ArmSim(object):
 	configs = self.controller.generateTrajectory(strokes)
 	
 	# Loop over interpolated configurations
-	for k in range(0, nsteps):
+	for k in range(0, len(configs)):
 	    print 'Step', k
+	    print str(configs[k])
 	    self.arm.setConfiguration(configs[:,k]) # Update arm position
 	    self.armPlot.clear()
 	    self.armPlot.plotArm(self.arm) 	# Plot
