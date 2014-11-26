@@ -10,15 +10,13 @@ from paper import Paper
 import matplotlib as plt
 from time import sleep
 
-# Global paper location input for simulation
-paperLocation = np.asfarray([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
-
-# Set of waypoints on paper
-waypoints = [[(10,0),(10,30)],[[10,15],[20,15]],[[20,0],[20,30]]
-
 # "2.5D" Delta Arm discrete time kinematics simulation
 class ArmSim(object):
-    
+    # Global paper location input for simulation
+    PAPER_LOCATION = np.asfarray([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
+    # Set of waypoints on paper
+    #WAYPOINTS = [[(10,0),(10,30)],[[10,15],[20,15]],[[20,0],[20,30]]
+
     def __init__(self):
 	self.arm = Arm(np.asfarray([0,-200,0]), np.asfarray([0,0,0]), 100, 160, 200, 1, -20)	# TODO: Initialze arm object
 	self.paperPlot = PaperPlot()

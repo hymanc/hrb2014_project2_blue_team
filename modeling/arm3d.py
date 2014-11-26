@@ -32,13 +32,19 @@ class ArmPlot(object):
     def plotArm(self, arm):
 	pts = arm.getPoints()# Get Body Points
 	for i in range(0,len(self.l)):
-	    print self.l[i]
+	    #print self.l[i]
 	    if(self.l[i] != 0 and self.l[i] != None):
-		print 'Old line available'
+		#print 'Old line available'
 		#self.ax3d.lines3d.remove(self.l[i])
 		self.l[i].pop(0)
-		self.l[i].remove()
+		#self.l[i].remove()
 	
+	plt.clf()
+	self.ax3d = self.fig.add_subplot(1, 1, 1, projection='3d')
+	plt.title('3D ARM!')
+	self.ax3d.set_xlim(-250,250)
+	self.ax3d.set_ylim(-250,250)
+	self.ax3d.set_zlim(-250,250)
 	self.l[0] = self.plotLine(pts['ground'], pts['base'],lw=10)
 	self.l[1] = self.plotLine(pts['base'], pts['lshoulder'],lw=5)
 	self.l[2] = self.plotLine(pts['base'], pts['rshoulder'],lw=5)
