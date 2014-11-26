@@ -40,24 +40,29 @@ class Arm(object):
 	z = (self.Z0 + phi3)[0]
 		
 	P0 = [0,0,z,1]
-	P1 = P0 + np.asfarray([ L0/2, 0, 0, 1]) # Shoulder 1 (Right)
-	P2 = P0 + np.asfarray([-L0/2, 0, 0, 1]) # Shoulder 2 (Left)
+	P1 = P0 + np.asfarray([ L0/2, 0, 0, 0]) # Shoulder 1 (Right)
+	P2 = P0 + np.asfarray([-L0/2, 0, 0, 0]) # Shoulder 2 (Left)
 	P3 = P1 + np.asfarray([ L1 * cos(phi1), L2 * sin(phi1), 0, 0]) # Elbow 1 (Right)
 	P4 = P2 + np.asfarray([-L1 * cos(phi2), L2 * sin(phi2), 0, 0]) # Elbow 2 (Left)
 	# Solve quadratic system of equations for wrist position
 	P5 = np.append(solveEEQuadratic(P3, P4, L2),[z,1])	# Wrist
 	P6 = P5 - np.asfarray([0, 0, DM, 0]) #
 	# Apply homogeneous RBT to all generate points
-	print P0,P1,P2,P3,P4,P5,P6
-	np.dot(self.hbase, P0)
-	np.dot(self.hbase, P1)
-	np.dot(self.hbase, P2)
-	np.dot(self.hbase, P3)
-	np.dot(self.hbase, P4)
-	np.dot(self.hbase, P5)
-	np.dot(self.hbase, P6)
+	P0 = np.dot(self.hbase, P0)
+	P1 = np.dot(self.hbase, P1)
+	P2 = np.dot(self.hbase, P2)
+	P3 = np.dot(self.hbase, P3)
+	P4 = np.dot(self.hbase, P4)
+	P5 = np.dot(self.hbase, P5)
+	P6 = np.dot(self.hbase, P6)
+	#print 'HBASE', str(self.hbase)
+	#print P0,P1,P2,P3,P4,P5,P6
 	return [P0,P1,P2,P3,P4,P5,P6]
 
+    # TODO: Full 3D IK
+    def fullIK(self, target):
+	pass
+    
     # Planar IK Solver
     def planarIK(self, planeTarget):
 	x = planeTarget[0]
