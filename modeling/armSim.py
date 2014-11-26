@@ -8,17 +8,24 @@ from forcePlot import *
 from arm import Arm
 from paper import Paper
 import matplotlib as plt
+from time import sleep
+
+# Global paper location input for simulation
+paperLocation = np.asfarray([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]])
+
+# Set of waypoints on paper
+waypoints = [[(10,0),(10,30)],[[10,15],[20,15]],[[20,0],[20,30]]
 
 # "2.5D" Delta Arm discrete time kinematics simulation
 class ArmSim(object):
     
     def __init__(self):
-	self.arm = Arm(np.asfarray([0,0,100]), np.asfarray([0,0,0]), 100, 160, 200, 1, -20)	# TODO: Initialze arm object
-	self.paper = Paper(np.asfarray([0,0,0]), np.asfarray([0,0,0]))	# TODO: Initialize paper object
-	self.armPlot = ArmPlot() # Initialize the 3D plot
+	self.arm = Arm(np.asfarray([0,-200,0]), np.asfarray([0,0,0]), 100, 160, 200, 1, -20)	# TODO: Initialze arm object
 	self.paperPlot = PaperPlot()
 	self.forcePlot = ForcePlot()
-	#self.armPlot.plotPaper(self.paper)
+	self.paper = Paper(np.asfarray([0,0,0]), np.asfarray([0,-pi/2,-pi/2]))	# TODO: Initialize paper object
+	self.armPlot = ArmPlot() # Initialize the 3D plot
+	self.armPlot.plotPaper(self.paper)
 	self.armPlot.plotArm(self.arm)
     
     # Run the simulation
@@ -29,22 +36,25 @@ class ArmSim(object):
 	# Loop over waypoints
 	for i in range(0,len(waypoints)):
 	    #TODO: Convert waypoints into arm frame
-	    ikConfig = np.append(self.arm.planarIK(waypoints[i]),[0])# Compute IK
+	    ikConfig = np.append(self.arm.planarIK(waypoints[i]),[50])# Compute IK
 	    print str(ikConfig)
-	    minStep = 100 #TODO: Compute variable nsteps
+	    nsteps = minStep #TODO: Compute variable nsteps
 	    configs = interpolateLinear(current, ikConfig, nsteps)  # Interpolate trajectory
+	    print configs.shape
 	    # Loop over interpolated configurations
 	    for k in range(0, nsteps):
 		print 'Step', k
 		self.arm.setConfiguration(configs[:,k]) # Update arm position
 		#self.armPlot.fig.set(visible=0)
-		self.armPlot.fig.clf()
+		self.armPlot.clear()
 		self.armPlot.plotArm(self.arm) 	# Plot
+		self.armPlot.plotPaper(self.paper)# Plot paper again
+		draw()
+		self.armPlot.fig.show()
 		#self.armPlot.fig.set(visible=1)
-		#draw()
-		#self.armPlot.clear()
+		sleep(0.003)	
+	    #self.armPlot.drawAnimation(self.arm, configs, self.paper)
 	    current = ikConfig
-	    sleep(0.05)
     
     # Round the configuration to RX64 angles
     def rx64RoundConfig(config):

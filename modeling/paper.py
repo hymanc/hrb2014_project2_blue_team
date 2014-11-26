@@ -18,18 +18,21 @@ class Paper(object):
 	self.paperFrame[0:3,0:3] = R
 	
 	# Generate paper corners
-	corner1 = np.asfarray([0,0,0,1])
-	corner2 = np.asfarray([Paper.X_SIZE, 0, 0,1])
-	corner3 = np.asfarray([Paper.X_SIZE, Paper.Y_SIZE, 0,1])
-	corner4 = np.asfarray([0, Paper.Y_SIZE, 0,1])
+	corner1 = np.asfarray([0, 0, 0 ,1])
+	corner2 = np.asfarray([Paper.X_SIZE, 0, 0, 1])
+	corner3 = np.asfarray([Paper.X_SIZE, Paper.Y_SIZE, 0, 1])
+	corner4 = np.asfarray([0, Paper.Y_SIZE, 0, 1])
+	tempcorners = np.zeros((4,4))
 	self.corners = np.zeros((4,4))
-	self.corners[:,0] = corner1
-	self.corners[:,1] = corner2
-	self.corners[:,2] = corner3
-	self.corners[:,3] = corner4
-	
-	self.corners = np.dot(self.paperFrame, self.corners) # Transform corners
-	
+	tempcorners[:,0] = corner1
+	tempcorners[:,1] = corner2
+	tempcorners[:,2] = corner3
+	tempcorners[:,3] = corner4
+	#print str(tempcorners)
+	self.corners = np.dot(self.paperFrame, tempcorners)
+	print str(self.corners)
+	#print str(self.paperFrame)
+    
     # Obtain paper x-axis unit vector
     def paperX(self):
 	x = self.corners[:,1]-self.corners[:,0]
