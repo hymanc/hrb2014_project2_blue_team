@@ -9,7 +9,8 @@ class Arm(object):
     def __init__(self, baseOrigin, armOrientation, L0, L1, L2, Z0, ZM):
 	self.baseOrigin = np.asfarray(baseOrigin)
 	self.armOrientation = np.asfarray(armOrientation)
-	self.configuration = np.asfarray([pi/4,pi/4,0])
+	self.configuration = np.zeros((3,1))
+	self.configuration[:,0] = np.asfarray([pi/4,pi/4,0])
 	self.L0 = L0
 	self.L1 = L1
 	self.L2 = L2
@@ -55,6 +56,20 @@ class Arm(object):
 	np.dot(self.hbase, P6)	
 	return [P0,P1,P2,P3,P4,P5,P6]
 
+    # Planar IK Solver
+    def planarIK(self, planeTarget):
+	x = planeTarget[0]
+	y1 = planeTarget[1]
+	a1 = self.L0
+	a2 = self.L1
+	a3 = self.L2
+	y = y1 + a1/2.0
+	b = acos((x**2 + (a1 - y)**2 + a2**2 - a3**2)/(2*sqrt(x**2 + (a1 - y)**2)*(a2**2)))
+	theta2 = b - atan2( (a1 - y), x )
+	a = acos((x**2 + y**2 + a2**2 - a3**2)/(2*sqrt(x**2 + y**2)*a2**2))
+	theta1 = a - atan2(y,x)
+	return (theta1,theta2)
+	
     # Get EE Position (maximally extended)
     def eePosition(self, configuration=None):
 	if(configuration != None):

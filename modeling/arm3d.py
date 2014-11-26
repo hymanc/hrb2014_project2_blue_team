@@ -46,7 +46,7 @@ class ArmPlot(object):
 	x = [p1[0], p2[0]]
 	y = [p1[1], p2[1]]
 	z = [p1[2], p2[2]]
-	line = self.ax3d.plot(x,y,z)
+	line = self.ax3d.plot(x,y,z,'')
 	plt.setp(line, color=lineColor, linewidth=lw)
 	
     # Plot paper surface on 3D plot
@@ -60,7 +60,8 @@ class ArmPlot(object):
 	
     # Clear figure
     def clear(self):
-	plt.figure(self.fig)
-	plt.clf()
+	#plt.figure(self.fig)
+	#plt.clf()
+	self.clf()
 	
 	

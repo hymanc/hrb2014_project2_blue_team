@@ -22,20 +22,29 @@ class ArmSim(object):
 	self.armPlot.plotArm(self.arm)
     
     # Run the simulation
-    def run(self, waypoints, initialConfig, maxStep):
+    def run(self, waypoints, initialConfig, minStep=100):
+	initialConfig = np.asfarray(initialConfig)
 	current = initialConfig	# Current configuration
 	
 	# Loop over waypoints
 	for i in range(0,len(waypoints)):
-	    ikConfig = inverseKinematics()# Compute IK
-	    nsteps = 1000 #TODO: Compute variable nsteps
+	    #TODO: Convert waypoints into arm frame
+	    ikConfig = np.append(self.arm.planarIK(waypoints[i]),[0])# Compute IK
+	    print str(ikConfig)
+	    minStep = 100 #TODO: Compute variable nsteps
 	    configs = interpolateLinear(current, ikConfig, nsteps)  # Interpolate trajectory
 	    # Loop over interpolated configurations
 	    for k in range(0, nsteps):
+		print 'Step', k
 		self.arm.setConfiguration(configs[:,k]) # Update arm position
-		self.armPlot.plot(self.arm) 	# Plot
-		self.armPlot.clear()
+		#self.armPlot.fig.set(visible=0)
+		self.armPlot.fig.clf()
+		self.armPlot.plotArm(self.arm) 	# Plot
+		#self.armPlot.fig.set(visible=1)
+		#draw()
+		#self.armPlot.clear()
 	    current = ikConfig
+	    sleep(0.05)
     
     # Round the configuration to RX64 angles
     def rx64RoundConfig(config):
@@ -55,7 +64,8 @@ class ArmSim(object):
 def main():
     print 'Starting arm simulation'
     asim = ArmSim()
-    #asim.run()
+    waypoints = [[0,200,0],[0,100,0]]
+    asim.run(waypoints,[pi/2,pi/2,0])
     
 if __name__ == '__main__':
     main()

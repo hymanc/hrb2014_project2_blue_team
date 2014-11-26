@@ -12,7 +12,7 @@ def inverseKinematics(a1,a2,a3,x,y1):
     
     b = acos((x**2+(a1-y)**2+a2**2-a3**2)/(2*sqrt(x**2+(a1-y)**2)*(a2**2))
     
-    theta2 = b - atan((a1-y)/x)
+    theta2 = b - atan( (a1 - y)/x )
     
     a = acos((x**2+y**2+a2**2-a3**2)/(2*sqrt(x**2+y**2)*a2**2))
     
