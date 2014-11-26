@@ -55,13 +55,17 @@ class Arm(object):
 	P4 = np.dot(self.hbase, P4)
 	P5 = np.dot(self.hbase, P5)
 	P6 = np.dot(self.hbase, P6)
-	#print 'HBASE', str(self.hbase)
 	#print P0,P1,P2,P3,P4,P5,P6
 	return [P0,P1,P2,P3,P4,P5,P6]
 
-    # TODO: Full 3D IK
+    # Full 3D "IK"
     def fullIK(self, target):
-	pass
+	if(target != None):
+	    print 'Target', str(target)
+	    target = np.asfarray(target)
+	    planar_config = self.planarIK(target[0:2])
+	    z = self.Z0-target[2]
+	    return np.append(planar_config, [z])
     
     # Planar IK Solver
     def planarIK(self, planeTarget):

@@ -9,6 +9,7 @@ from arm import Arm
 from paper import Paper
 import matplotlib as plt
 from time import sleep
+from controller import DeltaController
 
 # "2.5D" Delta Arm discrete time kinematics simulation
 class ArmSim(object):
@@ -16,15 +17,15 @@ class ArmSim(object):
     Rp = Rrpy(pi/2,0,0) # Roll-pitch-yaw rotation parameterization
     PAPER_BASE = np.identity(4)		      # Paper frame rigid body transform
     PAPER_BASE[0:3,0:3] = Rp		      # Paper rotation matrix
-    PAPER_BASE[0:3,3]  = np.asfarray([0,0,0]) # Paper origin
+    PAPER_BASE[0:3,3]  = np.asfarray([-Paper.X_SIZE/2,0,0]) # Paper origin
     
     # Arm Location
     Ra = Rrpy(-pi/2-0.05,pi/2,0)		# Arm Roll-Pitch-Yaw base orientation parameterization
     ARM_BASE = np.identity(4)			# Arm fixed-base rigid body transform
-    ARM_BASE[0:3,3] = np.asfarray([100,-100,0])	# Arm origin 
+    ARM_BASE[0:3,3] = np.asfarray([250,-50,0])	# Arm origin 
     ARM_BASE[0:3,0:3] = Ra			# Set rotation
 		 
-    INITIAL_CONFIG = np.asfarray([pi/2,pi/2,0])	# Initial arm joint configuration
+    INITIAL_CONFIG = np.asfarray([pi/4,pi/4,0])	# Initial arm joint configuration
     
    # ===== Set of waypoints on paper =====
     WAYPOINTS = [[[10,0],[10,30]],[[10,15],[20,15]],[[20,0],[20,30]]]
@@ -37,38 +38,38 @@ class ArmSim(object):
 	self.armPlot = ArmPlot() # Initialize the 3D plot
 	self.armPlot.plotPaper(self.paper)
 	self.armPlot.plotArm(self.arm)
+	self.controller = DeltaController(self.arm, self.paper)
     
     # Run the simulation
-    def run(self, waypoints, initialConfig, minStep=100):
+    def run(self, strokes, initialConfig, minStep=100):
 	initialConfig = np.asfarray(initialConfig)
 	current = initialConfig	# Current configuration
-	# TODO: Stroke implementation
 	
 	# Loop over waypoints
-	for i in range(0,len(waypoints)):
-	    #TODO: Convert waypoints into arm frame
-	    ikConfig = np.append(self.arm.planarIK(waypoints[i][0]),[50])# Compute IK
-	    print str(ikConfig)
-	    nsteps = minStep
-	    configs = interpolateLinear(current, ikConfig, nsteps)  # Interpolate trajectory
-	    print configs.shape
-	    # Loop over interpolated configurations
-	    for k in range(0, nsteps):
-		print 'Step', k
-		self.arm.setConfiguration(configs[:,k]) # Update arm position
-		#self.armPlot.fig.set(visible=0)
-		self.armPlot.clear()
-		self.armPlot.plotArm(self.arm) 	# Plot
-		self.armPlot.plotPaper(self.paper)# Plot paper again
-		draw()
-		self.armPlot.fig.show()
-		#self.armPlot.fig.set(visible=1)
-		sleep(0.003)	
-	    #self.armPlot.drawAnimation(self.arm, configs, self.paper)
-	    current = ikConfig
+	#for i in range(0,len(strokes)):
+	'''
+	ikConfig = np.append(self.arm.planarIK(strokes[i][0]),[50])# Compute IK
+	print str(ikConfig)
+	nsteps = minStep
+	configs = interpolateLinear(current, ikConfig, nsteps)  # Interpolate trajectory
+	print configs.shape'''
+	    
+	configs = self.controller.generateTrajectory(strokes)
+	
+	# Loop over interpolated configurations
+	for k in range(0, nsteps):
+	    print 'Step', k
+	    self.arm.setConfiguration(configs[:,k]) # Update arm position
+	    self.armPlot.clear()
+	    self.armPlot.plotArm(self.arm) 	# Plot
+	    self.armPlot.plotPaper(self.paper)# Plot paper again
+	    draw()
+	    self.armPlot.fig.show()
+	    sleep(0.001)	
+	current = ikConfig
     
     # Round the configuration to RX64 angles
-    def rx64RoundConfig(config):
+    def rx64RoundConfig(config, randomness=0):
 	nbits = 10
 	rx64Range = 5*pi/3
 	if(len(config.shape) == 1):
