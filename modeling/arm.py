@@ -7,15 +7,17 @@ from kinematics import *
 
 # Arm class
 class Arm(object):
-    def __init__(self, baseOrigin, armNormal, L0, L1, L2, Z0, ZM):
+    def __init__(self, baseOrigin, armOrientation, L0, L1, L2, Z0, ZM):
 	self.baseOrigin = np.asfarray(baseOrigin)
-	self.armNormal = np.asfarray(armNormal)
-	self.configuration = np.asfarray([0],[0],[0])
+	self.armOrientation = np.asfarray(armOrientation)
+	self.configuration = np.asfarray([0,0,0])
 	self.L0 = L0
 	self.L1 = L1
 	self.L2 = L2
 	self.Z0 = Z0
 	self.ZM = ZM
+	
+	# Generate base RBT
 	
     # Set the current arm configuration
     def setConfiguration(self, configuration):

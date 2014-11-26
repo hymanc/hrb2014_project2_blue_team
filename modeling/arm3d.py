@@ -1,5 +1,6 @@
 # Arm 3D Plot
 import matplotlib.pyplot as plt
+from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 from kinematics import *
 
@@ -7,8 +8,7 @@ from kinematics import *
 class ArmPlot(object):
     # name: Plot name
     # points: Time series of vertices to plot
-    def __init__(self, name):
-	self.name = name
+    def __init__(self):
 	self.fig = plt.figure()
 	# 3D Subplot
 	self.ax3d = self.fig.add_subplot(2, 2, 4, projection='3d')
@@ -36,10 +36,11 @@ class ArmPlot(object):
 	
     # Plot paper surface on 3D plot
     def plotPaper(self, paper):
+	print 'Plotting paper'
 	x = paper.corners[0,:]
 	y = paper.corners[1,:]
 	z = paper.corners[2,:]
-	self.ax3d.plot_trisurf(x,y,z,linewidth=0.2)# Surface Plot
+	self.ax3d.plot_trisurf(x,y,z,cmap=cm.jet,linewidth=0.2)# Surface Plot
 	plt.show()
 	
     # Clear figure

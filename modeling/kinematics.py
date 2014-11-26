@@ -62,12 +62,31 @@ def circleIntersection(center1, center2, r1, r2):
 
 #TODO: Integrate this code
 def planarInverseKinematics(x,y1):
-    #assuming the center of the base is (0,0), 
-    #and the base is along the y axis
-    y = y1 + )L0/2)/2
-    b = acos((x**2+()L0/2)-y)**2+L1**2-L2**2)/(2*sqrt(x**2+()L0/2)-y)**2)*(L1**2))
-    thetL1 = b - atan(()L0/2)-y)/x)
-    a = acos((x**2+y**2+L1**2-L2**2)/(2*sqrt(x**2+y**2)*L1**2))
-    thet)L0/2) = a - atan(y/x)
-    return (thet)L0/2),thetL1)
+    pass
+
+# X-axis rotation matrix
+def Rx(theta):
+    c = cos(theta)
+    s = sin(theta)
+    return np.asfarray([[1,0,0],[0,c,-s],[0,s,c]])
+  
+# Y-axis rotation matrix
+def Ry(theta):
+    c = cos(theta)
+    s = sin(theta)
+    return np.asfarray([[c,0,s],[0,1,0],[-s,0,c]])
+  
+# Z-axis rotation matrix
+def Rz(theta):
+    c = cos(theta)
+    s = sin(theta)
+    return np.asfarray([[c,-s,0],[s,c,0],[0,0,1]])
+
+# Roll-pitch-yaw rotation matrix
+def Rrpy(thetaR, thetaP, thetaY):
+    return np.dot(Rz(thetaY), np.dot(Ry(thetaP), Rx(thetaR)))
+
+# ZYZ Euler angle rotation matrix
+def Rzyz(tz1, ty, tz2):
+    return np.dot(Rz(tz2), np.dot(Ry(ty), Rz(tz1) ) )
     
