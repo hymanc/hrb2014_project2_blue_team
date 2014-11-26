@@ -6,9 +6,10 @@ from kinematics import Rrpy, solveEEQuadratic
 
 # Arm class
 class Arm(object):
-    def __init__(self, baseOrigin, armOrientation, L0, L1, L2, Z0, ZM):
-	self.baseOrigin = np.asfarray(baseOrigin)
-	self.armOrientation = np.asfarray(armOrientation)
+    def __init__(self, hbase, L0, L1, L2, Z0, ZM):
+	self.hbase = hbase
+	#self.baseOrigin = np.asfarray(baseOrigin)
+	#self.armOrientation = np.asfarray(armOrientation)
 	self.configuration = np.zeros((3,1))
 	self.configuration[:,0] = np.asfarray([pi/4,pi/4,0])
 	self.L0 = L0
@@ -18,10 +19,10 @@ class Arm(object):
 	self.ZM = ZM
 	
 	 # Generate base RBT
-	self.hbase = np.identity(4)
-	self.hbase[0:3,3] = self.baseOrigin
-	ang = self.armOrientation
-	self.hbase[0:3,0:3] = Rrpy(ang[0], ang[1], ang[2])
+	#self.hbase = np.identity(4)
+	#self.hbase[0:3,3] = self.baseOrigin
+	#ang = self.armOrientation
+	#self.hbase[0:3,0:3] = Rrpy(ang[0], ang[1], ang[2])
 	
     # Set the current arm configuration
     def setConfiguration(self, configuration):
@@ -83,6 +84,5 @@ class Arm(object):
 	if(configuration != None):
 	    self.setConfiguration(configuration)
 	pts = self.forwardKinematics()
-	ground = pts[0]
-	ground[2] = 0 # Set z to 0 for ground intersection
+	ground = [pts[0][0],pts[0][1],0]
 	return {'ground': ground, 'base': pts[0], 'rshoulder': pts[1], 'lshoulder': pts[2], 'relbow': pts[3], 'lelbow': pts[4], 'wrist': pts[5], 'ee': pts[6]}

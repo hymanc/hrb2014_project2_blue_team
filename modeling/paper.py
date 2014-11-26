@@ -9,13 +9,14 @@ class Paper(object):
     
     # Paper constructor (not made from construction paper)
     # normalRotation (roll, pitch, yaw angles) of normal vector from [0,0,1]
-    def __init__(self, origin, normalRotation):
-	self.origin = np.asfarray(origin)
+    def __init__(self, rbt):
+	#self.origin = np.asfarray(origin)
 	# Determine rigid body transform to paper origin
-	self.paperFrame = np.identity(4)
-	self.paperFrame[0:3,3] = self.origin # Set translation
-	R = Rrpy(normalRotation[0], normalRotation[1], normalRotation[2]) # Set rotation
-	self.paperFrame[0:3,0:3] = R
+	self.paperFrame = rbt
+	#self.paperFrame = np.identity(4)
+	#self.paperFrame[0:3,3] = self.origin # Set translation
+	#R = Rrpy(normalRotation[0], normalRotation[1], normalRotation[2]) # Set rotation
+	#self.paperFrame[0:3,0:3] = R
 	
 	# Generate paper corners
 	corner1 = np.asfarray([0, 0, 0 ,1])

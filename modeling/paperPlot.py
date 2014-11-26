@@ -13,6 +13,7 @@ class PaperPlot(object):
 	plt.ylabel('Y (mm)')
 	plt.xlim(0,Paper.X_SIZE)
 	plt.ylim(0,Paper.Y_SIZE)
+	self.fig.gca().set_aspect('equal', adjustable='box')
 	plt.show()
 	
     # Execute the plotting
