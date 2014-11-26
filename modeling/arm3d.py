@@ -1,7 +1,7 @@
 # Arm 3D Plot
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-# TODO: Include IK
+from kinematics import *
 
 # 3D Arm Line-Plot
 class ArmPlot(object):
@@ -10,9 +10,10 @@ class ArmPlot(object):
     def __init__(self, name):
 	self.name = name
 	self.fig = plt.figure()
+	# 3D Subplot
 	self.ax3d = self.fig.add_subplot(2, 2, 4, projection='3d')
-	plt.title('ARM!')
-	#XY, XZ, YZ subplots
+	plt.title('3D ARM!')
+	#XY, XZ, YZ Subplots
 	self.axy = self.fig.add_subplot(2, 2, 1)
 	plt.title('XY Plane')
 	self.axz = self.fig.add_subplot(2, 2, 2)
@@ -21,10 +22,24 @@ class ArmPlot(object):
 	plt.title('YZ Plane')
 	
     # Plots the arm in 3D Space
-    def plot(self, arm, paper):
-	# Get Body Points
-	# Plot links between body points
-	# Plot End effector
+    def plotArm(self, arm):
+	pts = arm.getPoints()# Get Body Points
+	self.ax3d.plot(pts['ground'], pts['base'])
+	self.ax3d.plot(pts['base'], pts['lshoulder'])
+	self.ax3d.plot(pts['base'], pts['rshoulder'])
+	self.ax3d.plot(pts['lshoulder'], pts['lelbow'])
+	self.ax3d.plot(pts['lelbow'], pts['wrist'])
+	self.ax3d.plot(pts['rshoulder'], pts['relbow'])
+	self.ax3d.plot(pts['relbow'], pts['wrist'])
+	self.ax3d.plot(pts['wrist'], pts['marker']) # TODO: Replace with compressed marker
+	plt.show()
+	
+    # Plot paper surface on 3D plot
+    def plotPaper(self, paper):
+	x = paper.corners[0,:]
+	y = paper.corners[1,:]
+	z = paper.corners[2,:]
+	self.ax3d.plot_trisurf(x,y,z,linewidth=0.2)# Surface Plot
 	plt.show()
 	
     # Clear figure

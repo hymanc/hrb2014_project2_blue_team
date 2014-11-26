@@ -20,6 +20,11 @@ class PaperPlot(object):
 	self.adwg.plot(drawingPoints)
 	plt.show()
     
+    # Draw ideal shape
+    def drawIdeal(self, idealPoints):
+	self.adwg.plot(idealPoints,'g')
+	plt.show()
+	
     # Erase plots
     def erase(self):
 	figure(self.fig)

@@ -10,11 +10,11 @@ import matplotlib as plt
 class ArmSim(object):
     
     def __init__(self):
-	# Initialze arm object
-	# Initialize paper object
-	self.armPlot = ArmPlot('Arm')# Initialize the 3D plot
+	self.arm = Arm()	# TODO: Initialze arm object
+	self.paper = Paper()	# TODO: Initialize paper object
+	self.armPlot = ArmPlot('Arm') # Initialize the 3D plot
 	self.paperPlot = PaperPlot()
-	pass
+	self.forcePlot = ForcePlot()
     
     # Run the simulation
     def run(self, waypoints, initialConfig, maxStep):

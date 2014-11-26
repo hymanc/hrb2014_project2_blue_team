@@ -7,14 +7,16 @@ from paper import Paper
 class ForcePlot(object):
     def __init__(self):
 	self.fig = plt.figure()
-	self.aforce = self.fig.add_subplot(1,2,2)
+	self.aforce = self.fig.add_subplot(1,1,1)
 	plt.title('Contact Force')
 	plt.xlabel('Time (s)')
 	plt.ylabel('Force (N)')
 	plt.show()
 	
-    def plot(self, forcePoints):
+    def plot(self, forcePoints, idealPoints):
 	self.aforce.plot(forcePoints)
+	if(idealPoints != None):
+	    self.aforce.plot(idealPoints, 'g')
 	plt.show()
 	
     def clear(self):

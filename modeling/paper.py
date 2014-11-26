@@ -1,6 +1,7 @@
 from math import *
 import numpy as np
 
+# A paper model
 class Paper(object):
     X_SIZE = 215.9	# Paper x-size in mm (8.5in)
     Y_SIZE = 279.4	# Paper y-size in mm (11in)
@@ -42,9 +43,9 @@ class Paper(object):
     # Return unit normal
     def paperZ(self):
 	return self.normal
-	
+  
     # Check if a line segment between two points intersects the paper
-    # 
+    # TODO: Finish this
     # @return Point of intersection on paper plane
     def intersection(self, p1, p2):
 	# Check for basic intersection of line/plane

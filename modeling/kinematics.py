@@ -18,18 +18,19 @@ def forwardKinematics(arm):
     L0 = arm.L0
     L1 = arm.L1
     L2 = arm.L2
-    
+    # TODO Rigid body transform to base of planar portion
+    P0 = [0,0,0,1]
     z = phi3
-    P1 = np.asfarray([ L0/2, 0, z, 1]) # Shoulder 1
-    P2 = np.asfarray([-L0/2, 0, z, 1]) # Shoulder 2
-    P3 = P1 + np.asfarray([ L1 * cos(phi1), L2 * sin(phi1), z, 1]) # Elbow 1
-    P4 = P2 + np.asfarray([-L1 * cos(phi2), L2 * sin(phi2), z, 1]) # Elbow 2
+    P1 = np.asfarray([ L0/2, 0, z, 1]) # Shoulder 1 (Right)
+    P2 = np.asfarray([-L0/2, 0, z, 1]) # Shoulder 2 (Left)
+    P3 = P1 + np.asfarray([ L1 * cos(phi1), L2 * sin(phi1), z, 1]) # Elbow 1 (Right)
+    P4 = P2 + np.asfarray([-L1 * cos(phi2), L2 * sin(phi2), z, 1]) # Elbow 2 (Left)
     # Solve quadratic system of equations for wrist position
-    P5 = np.append(solveEEQuadratic(P3, P4, L2),[z,1])
-    PM = P5 - np.asfarray([0, 0, DM, 1])
+    P5 = np.append(solveEEQuadratic(P3, P4, L2),[z,1])	# Wrist
+    P6 = P5 - np.asfarray([0, 0, DM, 1]) #
     
     # TODO: Apply homogeneous RBT to all generate points
-    return [P1,P2,P3,P4,P5,P6]
+    return [P0,P1,P2,P3,P4,P5,P6]
 
 # Simpler quadratic-quadratic solver for same radii and positive-y solution
 def solveEEQuadratic(P3, P4, R):
