@@ -13,12 +13,13 @@ import matplotlib as plt
 class ArmSim(object):
     
     def __init__(self):
-	self.arm = Arm(np.asfarray([0,1,0]), np.asfarray([0,0,0]), 100, 160, 200, 1, -50)	# TODO: Initialze arm object
+	self.arm = Arm(np.asfarray([0,0,100]), np.asfarray([0,0,0]), 100, 160, 200, 1, -20)	# TODO: Initialze arm object
 	self.paper = Paper(np.asfarray([0,0,0]), np.asfarray([0,0,0]))	# TODO: Initialize paper object
 	self.armPlot = ArmPlot() # Initialize the 3D plot
 	self.paperPlot = PaperPlot()
 	self.forcePlot = ForcePlot()
-	self.armPlot.plotPaper(self.paper)
+	#self.armPlot.plotPaper(self.paper)
+	self.armPlot.plotArm(self.arm)
     
     # Run the simulation
     def run(self, waypoints, initialConfig, maxStep):
@@ -54,7 +55,7 @@ class ArmSim(object):
 def main():
     print 'Starting arm simulation'
     asim = ArmSim()
-    
+    #asim.run()
     
 if __name__ == '__main__':
     main()

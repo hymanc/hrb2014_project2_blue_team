@@ -1,7 +1,6 @@
 import sys
 from math import *
 import numpy as np
-from arm import Arm
 
 Z0 = 1.0 	# Base z-offset
 L0 = 5.0	# Base link
@@ -10,6 +9,7 @@ L2 = 10.0 	# Lower Link
 DM = -2.0	# Marker offset
     
 # Planar Forward Kinematics
+'''
 def forwardKinematics(arm):
     configuration = arm.configuration
     phi1 = arm.configuration[0,0]
@@ -28,9 +28,9 @@ def forwardKinematics(arm):
     # Solve quadratic system of equations for wrist position
     P5 = np.append(solveEEQuadratic(P3, P4, L2),[z,1])	# Wrist
     P6 = P5 - np.asfarray([0, 0, DM, 1]) #
-    
     # TODO: Apply homogeneous RBT to all generate points
     return [P0,P1,P2,P3,P4,P5,P6]
+'''
 
 # Simpler quadratic-quadratic solver for same radii and positive-y solution
 def solveEEQuadratic(P3, P4, R):
@@ -41,8 +41,8 @@ def solveEEQuadratic(P3, P4, R):
     d = sqrt( pow(x1-x2,2) + pow(y1-y2,2))
     l = pow(d,2)/(2*d)
     h = sqrt( pow(R,2) - pow(l,2) )
-    xp = l*(x2-x1)/d - h*(y2-y1)/d + x1
-    yp = l*(y2-y1)/d + h*(x2-x1)/d + y1
+    xp = l*(x2-x1)/d + h*(y2-y1)/d + x1
+    yp = l*(y2-y1)/d - h*(x2-x1)/d + y1
     return np.asfarray([xp,yp])
     
 # Circle-Circle Intersection
