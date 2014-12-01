@@ -60,7 +60,7 @@ class ArmSim(object):
 	for k in range(0, len(configs)):
 	    print 'Step', k
 	    print str(configs[k])
-	    self.arm.setConfiguration(configs[:,k]) # Update arm position
+	    self.arm.setConfiguration(configs[k]) # Update arm position
 	    self.armPlot.clear()
 	    self.armPlot.plotArm(self.arm) 	# Plot
 	    self.armPlot.plotPaper(self.paper)# Plot paper again

@@ -39,9 +39,10 @@ class DeltaController(object):
 	    config1 = config1.reshape((3,))
 	    config2 = config2.reshape((3,))
 	    print 'CONFIG2\n' , str(config2)
-	    configurations.append(interpolateLinear(current, currentHover, 100))
-	    configurations.append(interpolateLinear(currentHover, config1Hover, 500))
-	    configurations.append(interpolateLinear(config1Hover, config1, 100))
-	    configurations.append(interpolateLinear(config1, config2, 500))
+	    curHoverPts = interpolateLinear(current, currentHover, 100)
+	    configurations = configurations + interpolateLinear(currentHover, config1Hover, 500)
+	    configurations = configurations + interpolateLinear(config1Hover, config1, 100)
+	    configurations = configurations + interpolateLinear(config1, config2, 500)
+	    # Convert to matrix stack
 	return configurations
 	    
