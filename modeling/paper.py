@@ -72,9 +72,19 @@ class Paper(object):
     def getCorner(self, index):
 	if(index > 0 and index < 4):
 	    return self.corners[:,index]
-	
+    
+    # Converts a list of two 2-tuples/arrays into homogeneous world coordinates
+    def strokesToWorld(self, strokes):
+	worldStrokes = []
+	for stroke in strokes:
+	    p1 = np.asfarray(stroke[0])
+	    p2 = np.asfarray(stroke[1])
+	    p1w = self.paperToWorld(p1)
+	    p2w = self.paperToWorld(p2)
+	    worldStrokes.append([p1w,p2w])
+	return worldStrokes
+	    
     # Check if a line segment between two points intersects the paper
-    # TODO: Finish this
     # @return Point of intersection on paper plane
     def intersection(self, p1, p2):
 	# Convert points into paper frame

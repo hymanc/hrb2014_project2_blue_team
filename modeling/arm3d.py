@@ -76,21 +76,11 @@ class ArmPlot(object):
 	self.paperRender = self.ax3d.plot_trisurf(x,y,z,linewidth=0.2)# Surface Plot
 	self.fig.show()
 	return self.paperRender
-
-    '''
-    def drawAnimation(self, arm, configurations, paper):
-	arms = []
-	for i in range(0,configurations.shape[1]):
-	    print 'Adding plot'
-	    arm.setConfiguration(configurations[:,i])
-	    arms.append(self.plotArm(arm))
-	self.animation = animation.FuncAnimation(self.fig, self.animationFrame, 100, fargs=(arm,paper), interval=50, blit=False)
-	self.fig.show()
-	
-    def animationFrame(self, num, arm, paper):
-	#print num
-	self.plotPaper(paper)
-    '''
+    
+    # Plot the ideal path between strokes
+    def plotIdealPath(self, path):
+	for stroke in path:
+	    self.plotLine(stroke[0],stroke[1],'r',1)
     
     # Clear figure
     def clear(self):

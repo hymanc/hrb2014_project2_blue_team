@@ -18,7 +18,7 @@ class Arm(object):
 	self.Z0 = Z0
 	self.ZM = ZM
 	
-	 # Generate base RBT
+	#Generate base RBT
 	#self.hbase = np.identity(4)
 	#self.hbase[0:3,3] = self.baseOrigin
 	#ang = self.armOrientation
@@ -28,6 +28,7 @@ class Arm(object):
     def setConfiguration(self, configuration):
 	self.configuration[:,0] = np.asfarray(configuration)
 	
+    # Arm forward kinematics
     def forwardKinematics(self):
 	configuration = self.configuration
 	phi1 = configuration[0]

@@ -60,7 +60,7 @@ class ArmSim(object):
 	for k in range(0, len(configs)):
 	    print 'Step', k
 	    print str(configs[k])
-	    self.arm.setConfiguration(configs[k]) # Update arm position
+	    self.arm.setConfiguration(self.rx64RoundConfig(configs[k])) # Update arm position
 	    self.armPlot.clear()
 	    self.armPlot.plotArm(self.arm) 	# Plot
 	    self.armPlot.plotPaper(self.paper)# Plot paper again
@@ -70,9 +70,17 @@ class ArmSim(object):
 	current = ikConfig
     
     # Round the configuration to RX64 angles
-    def rx64RoundConfig(config, randomness=0):
+    def rx64RoundConfig(self, config, randomness=0):
 	nbits = 10
-	rx64Range = 5*pi/3
+	rx64Range = 5.0*pi/3.0
+	
+	dConfig = (config/rx64Range) * pow(2.0, nbits)
+	print 'Discrete configuration:', str(dConfig)
+	dConfig = np.round(dConfig)
+	roundedConfig = dConfig/pow(2.0, nbits) * rx64Range
+	print 'Rounded Configuration', str(roundedConfig)
+	# TODO: Randomness
+	'''
 	if(len(config.shape) == 1):
 	    config = np.reshape(config,(len(config),1)) # Reshape
 	roundedConfig = np.zeros(config.shape)
@@ -80,6 +88,7 @@ class ArmSim(object):
 	    for j in range(0, config.shape[1]):
 		binValue = round((config[i][j]/rx64Range)*pow(2,nbits))
 		roundedConfig[i][j] = binValue
+	'''
 	return roundedConfig
 	    
 	    
