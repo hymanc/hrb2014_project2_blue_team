@@ -17,6 +17,7 @@ class ArmPlot(object):
 	self.ax3d.set_xlim(-250,250)
 	self.ax3d.set_ylim(-250,250)
 	self.ax3d.set_zlim(-250,250)
+	self.ax3d.view_init(elev=80,azim=10)
 	self.l = [0] * 20
 	#XY, XZ, YZ Subplots
 	'''
@@ -45,6 +46,8 @@ class ArmPlot(object):
 	self.ax3d.set_xlim(-250,250)
 	self.ax3d.set_ylim(-250,250)
 	self.ax3d.set_zlim(-250,250)
+	self.ax3d.azim = 90
+	self.ax3d.elev = -90
 	self.l[0] = self.plotLine(pts['ground'], pts['base'],lw=10)
 	self.l[1] = self.plotLine(pts['base'], pts['lshoulder'],lw=5)
 	self.l[2] = self.plotLine(pts['base'], pts['rshoulder'],lw=5)

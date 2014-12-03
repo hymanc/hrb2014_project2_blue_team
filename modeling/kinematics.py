@@ -60,10 +60,6 @@ def circleIntersection(center1, center2, r1, r2):
     yn = l*(y2-y1)/d + h*(x2-x1)/d + y1
     return [(xp,yp),(xm,ym)]
 
-#TODO: Integrate this code
-def planarInverseKinematics(x,y1):
-    pass
-
 # X-axis rotation matrix
 def Rx(theta):
     c = cos(theta)

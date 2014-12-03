@@ -17,7 +17,7 @@ class Arm(object):
 	self.L2 = L2
 	self.Z0 = Z0
 	self.ZM = ZM
-	
+	print 'HBASE', str(self.hbase), '\n'
 	#Generate base RBT
 	#self.hbase = np.identity(4)
 	#self.hbase[0:3,3] = self.baseOrigin
@@ -61,34 +61,61 @@ class Arm(object):
 
     # Full 3D "IK"
     def fullIK(self, target):
+	print 'IK Target:', str(target)
 	if(target != None):
 	    print 'Target', str(target)
 	    target = np.asfarray(target)
-	    planar_config = self.planarIK(target[0:2])
-	    z = self.Z0-target[2]
+	    targetRFrame = np.dot(np.linalg.inv(self.hbase), target) # Convert target to arm frame
+	    print 'IK RFrame Target', str(targetRFrame)
+	    planar_config = self.planarIK(targetRFrame[0:2])
+	    z = self.Z0 - target[2]
 	    return np.append(planar_config, [z])
     
     # Planar IK Solver
     def planarIK(self, planeTarget):
-	x = planeTarget[0]
-	y1 = planeTarget[1]
-	a1 = self.L0
-	a2 = self.L1
-	a3 = self.L2
-	y = y1 + a1/2.0
+	# 
+	planeTarget = np.asfarray(planeTarget)
+	planeTarget = planeTarget[0:2]
+	print 'Plane Target', str(planeTarget)
+	LS = np.asfarray([-self.L0/2,0])
+	RS = np.asfarray([self.L0/2,0])
+	L0 = self.L0
+	L1 = self.L1
+	L2 = self.L2
+
+	# Get target relative to both shoulders
+	LD = planeTarget-LS
+	RD = planeTarget-RS
+	lld = np.linalg.norm(LD)
+	lrd = np.linalg.norm(RD)
+	
+	# Compute resulting angles using Law of Cosines
+	la = (-L2**2 + L1**2 + lrd**2)/(2*L1*lrd)
+	ra = (-L2**2 + L1**2 + lld**2)/(2*L1*lld)
+	if(abs(la) <= 1 and abs(ra) <= 1):
+	    phi1 = atan2(RD[1],RD[0]) - acos(la)
+	    phi2 = pi - atan2(LD[1],LD[0]) - acos(ra)
+	else:
+	    print 'Invalid Position, no IK Solution'
+	    return
+	'''
 	b = acos((x**2 + (a1 - y)**2 + a2**2 - a3**2)/(2*sqrt(x**2 + (a1 - y)**2)*(a2**2)))
 	theta2 = b - atan2( (a1 - y), x )
 	a = acos((x**2 + y**2 + a2**2 - a3**2)/(2*sqrt(x**2 + y**2)*a2**2))
-	theta1 = a - atan2(y,x)
-	return (theta1,theta2)
+	theta1 = a - atan2(y,x)'''
+	return (phi1, phi2)
 	
     # Get EE Position (maximally extended)
     def eePosition(self, configuration=None):
 	if(configuration != None):
 	    self.setConfiguration(configuration)
-	pts = forwardKinematics(self)
+	pts = self.forwardKinematics()
 	return pts[len(pts)-1]
 
+    def printEEPosition(self, configuration=None):
+	eePos = eePosition(configuration)
+	print 'EE Position:', np.around(eePos[0:3],2)
+	
     # Gets the location of critical points on the arm
     def getPoints(self, configuration=None):
 	if(configuration != None):

@@ -17,7 +17,7 @@ class ArmSim(object):
     Rp = Rrpy(pi/2,0,0) # Roll-pitch-yaw rotation parameterization
     PAPER_BASE = np.identity(4)		      # Paper frame rigid body transform
     PAPER_BASE[0:3,0:3] = Rp		      # Paper rotation matrix
-    PAPER_BASE[0:3,3]  = np.asfarray([-Paper.X_SIZE/2,0,0]) # Paper origin
+    PAPER_BASE[0:3,3]  = np.asfarray([-Paper.X_SIZE/2,-50,0]) # Paper origin
     
     # Arm Location
     Ra = Rrpy(-pi/2-0.05,pi/2,0)		# Arm Roll-Pitch-Yaw base orientation parameterization
@@ -32,9 +32,9 @@ class ArmSim(object):
 
     def __init__(self):
 	self.arm = Arm(self.ARM_BASE, 100, 160, 200, 1, -20)	# TODO: Initialze arm object
-	self.paperPlot = PaperPlot()
-	self.forcePlot = ForcePlot()
-	self.paper = Paper(self.PAPER_BASE)	# TODO: Initialize paper object
+	#self.paperPlot = PaperPlot()
+	#self.forcePlot = ForcePlot()
+	self.paper = Paper(self.PAPER_BASE)	# Initialize paper
 	self.armPlot = ArmPlot() # Initialize the 3D plot
 	self.armPlot.plotPaper(self.paper)
 	self.armPlot.plotArm(self.arm)
@@ -44,6 +44,7 @@ class ArmSim(object):
     def run(self, strokes, initialConfig, minStep=100):
 	initialConfig = np.asfarray(initialConfig)
 	current = initialConfig	# Current configuration
+	self.worldWaypoints = self.paper.strokesToWorld(strokes)
 	
 	# Loop over waypoints
 	#for i in range(0,len(strokes)):
@@ -56,41 +57,36 @@ class ArmSim(object):
 	    
 	configs = self.controller.generateTrajectory(strokes)
 	
+	# Wait for replay
 	# Loop over interpolated configurations
-	for k in range(0, len(configs)):
-	    print 'Step', k
-	    print str(configs[k])
-	    self.arm.setConfiguration(self.rx64RoundConfig(configs[k])) # Update arm position
-	    self.armPlot.clear()
-	    self.armPlot.plotArm(self.arm) 	# Plot
-	    self.armPlot.plotPaper(self.paper)# Plot paper again
-	    draw()
-	    self.armPlot.fig.show()
-	    sleep(0.001)	
-	current = ikConfig
+	while(True):
+	    for k in range(0, len(configs)):
+		print 'Step', k
+		#print str(configs[k])
+		self.arm.setConfiguration(self.rx64RoundConfig(configs[k])) # Update arm position
+		self.armPlot.clear()
+		self.armPlot.plotArm(self.arm) 	# Plot
+		self.armPlot.plotPaper(self.paper)	# Plot paper again
+		self.armPlot.plotIdealPath(self.worldWaypoints)
+		#print 'Arm Position', str(self.arm.eePosition())
+		self.arm.printEEPosition()
+		draw()
+		self.armPlot.fig.show()
+		sleep(0.0001)
+	    c = input('Enter some string to continue')
+	    #current = ikConfig
     
     # Round the configuration to RX64 angles
     def rx64RoundConfig(self, config, randomness=0):
 	nbits = 10
-	rx64Range = 5.0*pi/3.0
-	
+	rx64Range = 5.0*pi/3.0	
 	dConfig = (config/rx64Range) * pow(2.0, nbits)
-	print 'Discrete configuration:', str(dConfig)
+	#print 'Discrete configuration:', str(dConfig)
 	dConfig = np.round(dConfig)
 	roundedConfig = dConfig/pow(2.0, nbits) * rx64Range
-	print 'Rounded Configuration', str(roundedConfig)
-	# TODO: Randomness
-	'''
-	if(len(config.shape) == 1):
-	    config = np.reshape(config,(len(config),1)) # Reshape
-	roundedConfig = np.zeros(config.shape)
-	for i in range(0, config.shape[0]):
-	    for j in range(0, config.shape[1]):
-		binValue = round((config[i][j]/rx64Range)*pow(2,nbits))
-		roundedConfig[i][j] = binValue
-	'''
+	#print 'Rounded Configuration', str(roundedConfig)
+	# Generate Gaussian
 	return roundedConfig
-	    
 	    
 # Main arm simulation
 def main():
