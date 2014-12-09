@@ -1,40 +1,40 @@
 import numpy as np
 from math import *
-
+import ast
 import ckbot.logical
+from ArmMotionPlan import ArmPlan
 
+# Top Level Arm Drawing Class
 class ArmDraw(JoyApp):
     
-    def __init__(self):
+    #
+    def __init__(self, strokeFile):
 	JoyApp.__init__( self, confPath="$/cfg/JoyApp.yml") 
-	self.waypoints
+	self.strokes = readStrokes(strokeFile)
 	
+    # App startup
     def onStart(self):
 	# Populate servos
-	self.c = ckbot.logical.Cluster()
-	self.c.populate(3,{ 0x03 : 'L', 0x04 : 'R', 0x0B : 'Z'})
+	self.armPlan = ArmPlan(0x01,0x02,0x03) # TODO: Change servo addresses
 	
+    # Event handler
     def onEvent(self , evt):
 	pass
-    
-    def setLeft(self, theta):
-	self.c.at.L.set_position(theta)
-    
-    def setRight(self, theta):
-	self.c.at.R.set_position(theta)
-
-    def setZ(self, z):
-	self.c.at.Z.set_position(theta)
     
     # Read in strokes from file
     def readStrokes(self, filename):
 	strokes = []
-	f = open(filename, 'r')
-	# TODO: Read in tuples
+	f = open(filename)
+	lines = f.readlines()
+	for line in lines:
+	    strokes = strokes + ast.literal_eval(line)
 	return strokes
     
+# Main
+# TODO
 def main():
-    arm = ArmDraw()
+    strokeFile = ""
+    arm = ArmDraw(strokeFile)
     
     # TODO: Read in strokes from text file
     pass
