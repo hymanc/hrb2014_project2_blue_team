@@ -55,7 +55,7 @@ int8_t fifoPushRight(cfifo_t *fifo, void *data);
 /**
  * @brief Read Force Feedback ADC
  */
-void readFeedback(uint16_t data);
+uint16_t readFeedback(void);
 
 /**
  * @brief
@@ -112,5 +112,10 @@ void readByte(uint8_t byte);
  * @brief Peripheral Initialization Routine
  */
 void initialize(void);
+
+/**
+ * @brief Writes a null-terminated string to the serial terminal
+ */
+void writeString(char * str);
 
 #endif

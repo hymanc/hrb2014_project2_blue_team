@@ -5,9 +5,9 @@ from collections import deque
 # 2.5-D Delta Arm Driver
 class ArmPlan( Plan ):
     
-    def __init__(self, rAddr, lAddr, zAddr):
+    def __init__(self, rAddr, lAddr):
 	self.c = ckbot.logical.Cluster()
-	self.c.populate(3,{ rAddr : 'R', lAddr : 'L', zAddr : 'Z'}) #TODO: Addr
+	self.c.populate(2, { rAddr : 'R', lAddr : 'L'}) #TODO: Addr
 	self.pts = deque([])
     
     def appendPoints(self, pts):

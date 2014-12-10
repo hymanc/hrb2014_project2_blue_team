@@ -15,7 +15,7 @@ class ArmDraw(JoyApp):
     # App startup
     def onStart(self):
 	# Populate servos
-	self.armPlan = ArmPlan(0x01,0x02,0x03) # TODO: Change servo addresses
+	self.armPlan = ArmPlan(0x0B,0x0D) 
 	
     # Event handler
     def onEvent(self , evt):

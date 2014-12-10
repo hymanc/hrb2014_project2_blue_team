@@ -27,6 +27,8 @@
 volatile cfifo_t *rxFifo;
 volatile cfifo_t *txFifo;
 
+volatile uint16_t feedbackData; // ADC feedback data
+
 /**
  * @brief Checks if a FIFO is empty
  */
@@ -101,14 +103,6 @@ int8_t fifoPushRight(cfifo_t *fifo, void *data)
     fifo->tail = (fifo->tail + 1) % fifo->length;
     memcpy(fifo->data + fifo->tail, data, fifo->dsize);
     return 0;
-}
-
-/**
- * @brief Read Force Feedback ADC
- */
-void readFeedback(uint16_t data)
-{
-
 }
 
 /**
@@ -198,7 +192,7 @@ void setServoPulsewidth(int16_t pw)
 	pw = SERVO_PWM_MIN;
     else if(pw > SERVO_PWM_MAX)
 	pw = SERVO_PWM_MAX;
-    OC1A = pw;
+    OCR1A = pw;
 }
 
 /**
@@ -252,6 +246,22 @@ void readByte(uint8_t byte)
 }
 
 /**
+ * @brief Writes a null-terminated string to the serial terminal
+ */
+void writeString(char * str)
+{
+    char c;
+    uint8_t i = 0;
+    do
+    {
+	c = str[i++];
+	if(c == '\0')
+	    break;
+	sendByte(c);
+    }while(c != '\0'); // Go until null terminator
+}
+
+/**
  * @brief Peripheral Initialization Routine
  */
 void initialize(void)
@@ -259,7 +269,7 @@ void initialize(void)
     cli();
     // Initialize ADC
     ADMUX = (1<<REFS0); // External AVcc ref
-    ADCSRA = (1<<ADEN) | (1<<ADPS2) | (1<<ADPS1); // DIV32
+    ADCSRA = (1<<ADEN) | (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0); // DIV128
     
     // Initialize Serial (38400)
     UBRR0L = 25; // 38.4kbps @ F_CPU = 16MHz
@@ -272,17 +282,19 @@ void initialize(void)
     // Initialize Servo PWM (OC1A)
     TCCR1A = (1<<COM1A0) | (1<<WGM11);
     TCCR1B = (1<<WGM13) | (1<<WGM12) | (1<<CS11) | (1<<CS10); //DIV64
+    OCR1A = SERVO_PWM_MIN;
     
     sei(); // Enable global interrupts
 }
+
+// TODO: Command parser
 
 /**
  * @brief ADC Conversion Complete Interrupt Handler
  */
 ISR(ADC_vect)
 {
-    uint16_t data = ( ADCH << 8 ) | ADCL;
-    readFeedback(data);
+    feedbackData = ( ADCH << 8 ) | ADCL;
 }
 
 /**
@@ -290,7 +302,6 @@ ISR(ADC_vect)
  */
 ISR(USART0_TX_vect)
 {
-    // TODO: Send next byte 
     if(!fifoEmpty(txFifo))
     {
 	uint8_t data;
@@ -331,11 +342,36 @@ void main(void)
     txFifo = &tx;
     rxFifo = &rx;
     
+    uint16_t feedbackValue;
+    uint16_t setpoint;
+    char sBuffer[16];
+    uint8_t scounter;
+    uint16_t command;
+    cli();
+    
+    int16_t error;
+    int16_t errorD;
+    int32_t errorInt;
+    int16_t errorLast;
+    
     while(1)
     {
 	// Check for new serial commands
-	// Read ADC
-	// Set Feedback appropriately
+	
+	// Compute force control
+	errorLast = error;			// Store back last error
+	error = setpoint - feedbackData; 	// Proportional error
+	errorInt += error;			// Integral error
+	errorD = error - errorLast; 		// Deriviative error
+	
+	command += error/4;
+	setServoPulsewidth(command); // Set Feedback appropriately
+	
 	// Send feedback over serial
+	toHex16(feedbackData,sBuffer+1);
+	sBuffer[5] = '\n';
+	sBuffer[6] = '\0';
+	writeString(sBuffer);
+	_delay_ms(20);
     }
 }
