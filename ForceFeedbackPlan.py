@@ -7,15 +7,18 @@ import ckbot.logical
 class ForceFeedback( Plan ):
     
     def __init__(self):
-	self.port = serial.Serial('/dev/ttyUSB1', 38400, timeout=1) # Open up ttyUSB1
+	self.port = serial.Serial('/dev/ttyACM0', 115200, timeout=1) # Open up Nucleo VCP (ttyACM0)
 	if(self.port.isOpen()):
-	    print '/dev/ttyUSB1 opened'
+	    print 'EE serial link opened'
 	    # Continue
 	else
 	    return
 	
     def stop(self):
 	self.port.close()
+	
+    def parseForce(self, fstr):
+	#"F:XXXX"
 	
     def sendMoveCommand(self, position):
 	self.port.write("M:\n")
@@ -28,6 +31,12 @@ class ForceFeedback( Plan ):
     def behavior(self):
 	# Read serial
 	# Issue new commands
-	pass
+	while(True):
+	    if(self.port.isOpen()):
+		lines = self.port.readlines() # Read all lines
+		if(len(lines) > 0):
+		    fline = lines[-1]
+		    # Parse Force command
+	    yield self.forDuration(0.05)
     
     

@@ -4,10 +4,13 @@ import ast
 import ckbot.logical
 from ArmMotionPlan import ArmPlan
 
+SQUARE_SIDE = 101.6 # 4in in mm
+PAPER_HEIGHT = 279.4 # 11 in in mm
+PAPER_WIDTH = 215.9 # 8.5in in mm
 # Top Level Arm Drawing Class
 class ArmDraw(JoyApp):
     
-    #
+    # 
     def __init__(self, strokeFile):
 	JoyApp.__init__( self, confPath="$/cfg/JoyApp.yml") 
 	self.strokes = readStrokes(strokeFile)
@@ -15,7 +18,7 @@ class ArmDraw(JoyApp):
     # App startup
     def onStart(self):
 	# Populate servos
-	self.armPlan = ArmPlan(0x0B,0x0D) 
+	self.armPlan = ArmPlan(0x0D,0x0B) 
 	
     # Event handler
     def onEvent(self , evt):

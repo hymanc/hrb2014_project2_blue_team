@@ -2,33 +2,30 @@ from math import *
 import numpy as np
 from kinematics import Rrpy, solveEEQuadratic
 
-# NOTE: All measurements are in mm
-
 # Arm class
 class Arm(object):
-    def __init__(self, hbase, L0, L1, L2, Z0, ZM):
-	self.hbase = hbase
-	#self.baseOrigin = np.asfarray(baseOrigin)
-	#self.armOrientation = np.asfarray(armOrientation)
+    def __init__(self, H):
+	if(H == None):
+	    self.H = np.identity(3)
+	else:
+	    self.H = H
 	self.configuration = np.zeros((3,1))
 	self.configuration[:,0] = np.asfarray([pi/4,pi/4,0])
-	self.L0 = L0
-	self.L1 = L1
-	self.L2 = L2
-	self.Z0 = Z0
-	self.ZM = ZM
-	print 'HBASE', str(self.hbase), '\n'
-	#Generate base RBT
-	#self.hbase = np.identity(4)
-	#self.hbase[0:3,3] = self.baseOrigin
-	#ang = self.armOrientation
-	#self.hbase[0:3,0:3] = Rrpy(ang[0], ang[1], ang[2])
+	self.L0 = L0 #
+	self.L1 = L1 #
+	self.L2 = L2 # 
+	self.Z0 = Z0 #
+	self.ZM = ZM #
 	
     # Set the current arm configuration
     def setConfiguration(self, configuration):
 	self.configuration[:,0] = np.asfarray(configuration)
 	
-    # Arm forward kinematics
+    # Set the calibration homography
+    def setCalibration(self, calH):
+	self.H = calH
+	
+    # Arm forward kinematics in robot planar frame
     def forwardKinematics(self):
 	configuration = self.configuration
 	phi1 = configuration[0]
@@ -49,6 +46,7 @@ class Arm(object):
 	P5 = np.append(solveEEQuadratic(P3, P4, L2),[z,1])	# Wrist
 	P6 = P5 - np.asfarray([0, 0, DM, 0]) #
 	# Apply homogeneous RBT to all generate points
+	'''
 	P0 = np.dot(self.hbase, P0)
 	P1 = np.dot(self.hbase, P1)
 	P2 = np.dot(self.hbase, P2)
@@ -56,23 +54,26 @@ class Arm(object):
 	P4 = np.dot(self.hbase, P4)
 	P5 = np.dot(self.hbase, P5)
 	P6 = np.dot(self.hbase, P6)
+	'''
 	#print P0,P1,P2,P3,P4,P5,P6
 	return [P0,P1,P2,P3,P4,P5,P6]
 
     # Full 3D "IK"
-    def fullIK(self, target):
+    ''''
+    def fullInverseKinematics(self, target):
 	print 'IK Target:', str(target)
 	if(target != None):
 	    print 'Target', str(target)
 	    target = np.asfarray(target)
 	    targetRFrame = np.dot(np.linalg.inv(self.hbase), target) # Convert target to arm frame
 	    print 'IK RFrame Target', str(targetRFrame)
-	    planar_config = self.planarIK(targetRFrame[0:2])
+	    planar_config = self.planarInverseKinematics(targetRFrame[0:2])
 	    z = self.Z0 - target[2]
 	    return np.append(planar_config, [z])
+    '''
     
     # Planar IK Solver
-    def planarIK(self, planeTarget):
+    def planarInverseKinematics(self, planeTarget):
 	# 
 	planeTarget = np.asfarray(planeTarget)
 	planeTarget = planeTarget[0:2]
@@ -98,11 +99,6 @@ class Arm(object):
 	else:
 	    print 'Invalid Position, no IK Solution'
 	    return
-	'''
-	b = acos((x**2 + (a1 - y)**2 + a2**2 - a3**2)/(2*sqrt(x**2 + (a1 - y)**2)*(a2**2)))
-	theta2 = b - atan2( (a1 - y), x )
-	a = acos((x**2 + y**2 + a2**2 - a3**2)/(2*sqrt(x**2 + y**2)*a2**2))
-	theta1 = a - atan2(y,x)'''
 	return (phi1, phi2)
 	
     # Get EE Position (maximally extended)
@@ -112,6 +108,7 @@ class Arm(object):
 	pts = self.forwardKinematics()
 	return pts[len(pts)-1]
 
+    # Print arm EE Position
     def printEEPosition(self, configuration=None):
 	eePos = eePosition(configuration)
 	print 'EE Position:', np.around(eePos[0:3],2)
@@ -123,3 +120,21 @@ class Arm(object):
 	pts = self.forwardKinematics()
 	ground = [pts[0][0],pts[0][1],0]
 	return {'ground': ground, 'base': pts[0], 'rshoulder': pts[1], 'lshoulder': pts[2], 'relbow': pts[3], 'lelbow': pts[4], 'wrist': pts[5], 'ee': pts[6]}
+    
+    # Generates a linear trajectory in paper coordinates between two points
+    def generateLinearTrajectory(self, startPt, endPt, npts):
+	configs = []
+	startPt = np.asfarray(startPt)
+	endPt = np.asfarray(endPt)
+	delta = (endPt - startPt)/npts
+	# Convert to 2D homogeneous
+	delta = np.append(delta[0:2],[0])
+	sp = np.append(startPt[0:2],[1])
+	for i in range(npts):
+	    pti = sp + i * delta 			# Compute intermediate paper point
+	    pti = np.dot(self.homography, pti) 		# Use homography to convert to arm x-y projection coordinates
+	    cfgi = self.planarInverseKinematics(pti)	# Generate IK solution
+	    if(cfgi != None):
+		configs.append(cfgi)			# Add new configuration (if not null)
+	    
+	

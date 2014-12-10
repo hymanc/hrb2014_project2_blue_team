@@ -73,6 +73,7 @@ build/obj/main.o: main.c /home/cody/dev/chibios/trunk/os/rt/include/ch.h \
  /home/cody/dev/chibios/trunk/os/hal/include/mac.h \
  /home/cody/dev/chibios/trunk/os/hal/include/mii.h \
  /home/cody/dev/chibios/trunk/os/hal/include/pwm.h \
+ /home/cody/dev/chibios/trunk/os/hal/ports/STM32/LLD/TIMv1/pwm_lld.h \
  /home/cody/dev/chibios/trunk/os/hal/include/rtc.h \
  /home/cody/dev/chibios/trunk/os/hal/include/serial.h \
  /home/cody/dev/chibios/trunk/os/hal/ports/STM32/LLD/USARTv1/serial_lld.h \
@@ -95,9 +96,7 @@ build/obj/main.o: main.c /home/cody/dev/chibios/trunk/os/rt/include/ch.h \
  /usr/arm-none-eabi/include/machine/_types.h \
  /usr/arm-none-eabi/include/sys/lock.h \
  /usr/arm-none-eabi/include/machine/stdlib.h \
- /usr/arm-none-eabi/include/alloca.h /usr/arm-none-eabi/include/string.h \
- /usr/lib/gcc/arm-none-eabi/4.8.4/include-fixed/sys/cdefs.h \
- /usr/arm-none-eabi/include/sys/string.h
+ /usr/arm-none-eabi/include/alloca.h /usr/arm-none-eabi/include/math.h
 
 /home/cody/dev/chibios/trunk/os/rt/include/ch.h:
 
@@ -255,6 +254,8 @@ mcuconf.h:
 
 /home/cody/dev/chibios/trunk/os/hal/include/pwm.h:
 
+/home/cody/dev/chibios/trunk/os/hal/ports/STM32/LLD/TIMv1/pwm_lld.h:
+
 /home/cody/dev/chibios/trunk/os/hal/include/rtc.h:
 
 /home/cody/dev/chibios/trunk/os/hal/include/serial.h:
@@ -303,8 +304,4 @@ mcuconf.h:
 
 /usr/arm-none-eabi/include/alloca.h:
 
-/usr/arm-none-eabi/include/string.h:
-
-/usr/lib/gcc/arm-none-eabi/4.8.4/include-fixed/sys/cdefs.h:
-
-/usr/arm-none-eabi/include/sys/string.h:
+/usr/arm-none-eabi/include/math.h:

@@ -86,6 +86,7 @@ build/obj/mmc_spi.o: /home/cody/dev/chibios/trunk/os/hal/src/mmc_spi.c \
  /home/cody/dev/chibios/trunk/os/hal/include/mac.h \
  /home/cody/dev/chibios/trunk/os/hal/include/mii.h \
  /home/cody/dev/chibios/trunk/os/hal/include/pwm.h \
+ /home/cody/dev/chibios/trunk/os/hal/ports/STM32/LLD/TIMv1/pwm_lld.h \
  /home/cody/dev/chibios/trunk/os/hal/include/rtc.h \
  /home/cody/dev/chibios/trunk/os/hal/include/serial.h \
  /home/cody/dev/chibios/trunk/os/hal/ports/STM32/LLD/USARTv1/serial_lld.h \
@@ -276,6 +277,8 @@ mcuconf.h:
 /home/cody/dev/chibios/trunk/os/hal/include/mii.h:
 
 /home/cody/dev/chibios/trunk/os/hal/include/pwm.h:
+
+/home/cody/dev/chibios/trunk/os/hal/ports/STM32/LLD/TIMv1/pwm_lld.h:
 
 /home/cody/dev/chibios/trunk/os/hal/include/rtc.h:
 
