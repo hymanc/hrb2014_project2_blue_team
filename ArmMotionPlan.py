@@ -2,16 +2,18 @@ from joy import Plan
 import ckbot.logical
 from collections import deque
 from homography import *
-
+from
 # 2.5-D Delta Arm Driver
 class ArmPlan( Plan ):
     
-    def __init__(self, rAddr, lAddr):
+    def __init__(self, app, *arg, **kw, rAddr, lAddr):
+	Plan.__init__(self, app, *arg, **kw ) # Initialize Plan
 	self.c = ckbot.logical.Cluster()
 	self.c.populate(2, { rAddr : 'R', lAddr : 'L'})
 	self.pts = deque([])
 	self.mode = "IDLE"
     
+    # Append configurations
     def appendPoints(self, pts):
 	self.pts = self.pts + pts
 	
@@ -41,13 +43,7 @@ class ArmPlan( Plan ):
     
     # Set Z-axis height
     def setZ(self, z):
-	pass
-    
-    # Set the motors to go slack for calibration
-    def calibrateMode(self):
-	self.mode = "CALIBRATE"
-	self.c.at.L.go_slack()
-	self.c.at.R.go_slack()
+	pass # TODO: Interface to ForceFeedbackPlan
 	
     def runMode(self):
 	self.mode = "RUN"
@@ -57,7 +53,6 @@ class ArmPlan( Plan ):
 	
     # Primary behavior
     def behavior(self):
-	pass
 	while(True):
 	    # Run mode handling
 	    if(self.mode == "RUN"):

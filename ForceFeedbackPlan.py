@@ -6,7 +6,8 @@ import ckbot.logical
 # Measured force Returned
 class ForceFeedback( Plan ):
     
-    def __init__(self):
+    def __init__(self, app, *arg, **kw):
+	Plan.__init__(self, app, *arg, **kw ) # Initialize Plan
 	self.port = serial.Serial('/dev/ttyACM0', 115200, timeout=1) # Open up Nucleo VCP (ttyACM0)
 	if(self.port.isOpen()):
 	    print 'EE serial link opened'

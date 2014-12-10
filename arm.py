@@ -26,8 +26,9 @@ class Arm(object):
 	self.H = calH
 	
     # Arm forward kinematics in robot planar frame
-    def forwardKinematics(self):
-	configuration = self.configuration
+    def forwardKinematics(self, configuration=None):
+	if(configuration == None):
+	    configuration = self.configuration # Use current config if not specified
 	phi1 = configuration[0]
 	phi2 = configuration[1]
 	phi3 = configuration[2] # Z-axis rotation

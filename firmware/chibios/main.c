@@ -156,7 +156,7 @@ int16_t computeControl(uint16_t setpoint, uint16_t feedback, error_t *err)
 	err->errorI = -1*INTEGRAL_MAX;
     err->errorD = err->errorP - err->errorLast;
     
-    // Compute control command
+    return (KP * err->errorP + KD*err->errorD + KI*err->errorI);// Compute control command
 }
 
 
@@ -195,14 +195,14 @@ int main(void)
     pwmEnableChannel(&PWMD4, 0, PWM_PERCENTAGE_TO_WIDTH(&PWMD4, 4000));	// Default duty on EN channel
     setMotorDirection(1);
     
-    uint16_t setpoint;
-    uint16_t feedbackValue;
+    uint16_t setpoint = 0;
+    uint16_t feedbackValue = 0;
     
     
-    int32_t command; 
+    int32_t command = 0; 
     uint16_t currentDuty = 0050;
     
-    uint32_t loopCounter; // Loop counter
+    uint32_t loopCounter = 0; // Loop counter
     
     char out[64];
     out[0] = 'F';
@@ -237,7 +237,7 @@ int main(void)
 		    break;
 	    }
 	}
-	// ADC Read of feedback
+	// ADC Read of feedback pot
 	adcConvert(&ADCD1, &adcgrpcfg, samples, ADC_BUF_DEPTH);
 	
 	// Compute control
@@ -252,7 +252,7 @@ int main(void)
 	{
 	    currentDuty = 7000;
 	}
-	//pwmEnableChannel(&PWMD4, 0, PWM_PERCENTAGE_TO_WIDTH(&PWMD4, currentDuty));//TODO: Set PWM duty for control
+	pwmEnableChannel(&PWMD4, 0, PWM_PERCENTAGE_TO_WIDTH(&PWMD4, currentDuty));//TODO: Set PWM duty for control
 	
 	chThdSleepMilliseconds(50);
 	

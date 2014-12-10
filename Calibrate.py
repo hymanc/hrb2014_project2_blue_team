@@ -40,26 +40,38 @@ def main():
     
     raw_input("Center of Left Edge\n")
     kpts.append(np.asfarray([0,PAPER_HEIGHT/2.0]))
-    
+    ocfg.append(np.asfarray([self.c.at.R.get_pos(), self.c.at.L.get_pos()])) # Get config
+
     raw_input("Upper Left Corner\n")
     kpts.append(np.asfarray([0,PAPER_HEIGHT]))
-    
+    ocfg.append(np.asfarray([self.c.at.R.get_pos(), self.c.at.L.get_pos()])) # Get config
+
+
     raw_input("Center of Upper Edge\n")
     kpts.append(np.asfarray([PAPER_WIDTH/2.0,PAPER_HEIGHT]))
-    
+    ocfg.append(np.asfarray([self.c.at.R.get_pos(), self.c.at.L.get_pos()])) # Get config
+
     raw_input("Upper Right Corner\n")
     kpts.append(np.asfarray([PAPER_WIDTH,PAPER_HEIGHT]))
-    
+    ocfg.append(np.asfarray([self.c.at.R.get_pos(), self.c.at.L.get_pos()])) # Get config
+
     raw_input("Center of Right Edge\n")
     kpts.append(np.asfarray([PAPER_WIDTH,PAPER_HEIGHT/2.0]))
-    
+    ocfg.append(np.asfarray([self.c.at.R.get_pos(), self.c.at.L.get_pos()])) # Get config
+
     raw_input("Lower Right Corner\n")
     kpts.append(np.asfarray([PAPER_WIDTH,0]))
-    
+    ocfg.append(np.asfarray([self.c.at.R.get_pos(), self.c.at.L.get_pos()])) # Get config
+
+    for cfg in ocfg:
+	eepos = self.arm.eePosition(cfg))
+	opts.append(eepos[0:2])
+	
     print "Computing Homography"
     H = homography(kpts, opts)
-    raw_input("Save homography:?  (filename): ")
-    
+    print "Homography:\n", str(H), "\n"
+    fname = raw_input("Save homography:?  (filename): ")
+    # TODO: Save out to fname if not empty
     
     
 

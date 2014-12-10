@@ -38,9 +38,10 @@ class ArmDraw(JoyApp):
 def main():
     strokeFile = ""
     arm = ArmDraw(strokeFile)
-    
-    # TODO: Read in strokes from text file
-    pass
+    # TODO: Pass data to ArmPlan
+    while(True):
+	print 'Running'
+	# 
 
 if __name__ == "__main__":
     main()
