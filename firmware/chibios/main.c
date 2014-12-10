@@ -5,13 +5,28 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define MDIR_A 11
+#define MDIR_B 12
+
 #define INTEGRAL_MAX 65535
 
 #define ADC_BUF_DEPTH 2 // Double buffered ADC
 #define ADC_CH_NUM 1
 
+#define KP 1
+#define KI 0
+#define KD 0
+
 //static ADCConfig adccfg = {};
 static adcsample_t samples[ADC_BUF_DEPTH * ADC_CH_NUM];
+
+typedef struct
+{
+    int16_t errorP;
+    int32_t errorI;
+    int16_t errorD;
+    int16_t errorLast;
+}error_t;
 
 static const ADCConversionGroup adcgrpcfg = 
 {
@@ -40,11 +55,11 @@ static SerialConfig ser_cfg =
 static PWMConfig pwmcfg = 
 {
    1E6,
-   100,
+   1000,
    NULL,
    {
        {PWM_OUTPUT_ACTIVE_HIGH, NULL},
-       {PWM_OUTPUT_ACTIVE_HIGH, NULL},
+       {PWM_OUTPUT_DISABLED, NULL},
        {PWM_OUTPUT_DISABLED, NULL},
        {PWM_OUTPUT_DISABLED, NULL}
    },
@@ -92,6 +107,59 @@ void toHex16Str(uint16_t hexVal, char *outStr)
     outStr[3] = toHexCharacter((uint8_t) (hexVal) & 0xF);
 }
 
+/**
+ * 
+ */
+void disableMotor(void)
+{
+    // TODO: Set duty cycles to 0
+    return;
+}
+
+/**
+ * 
+ */
+void setMotorDirection(int8_t direction)
+{
+    if(direction == 0) // Braking
+    {
+	palClearPad(GPIOB, 11);
+	palClearPad(GPIOB, 12);
+	return;
+    }
+    else if(direction > 0) // Direction forward
+    {
+	palSetPad(GPIOB, 11);
+	palClearPad(GPIOB, 12);
+	return;
+    }
+    else if(direction < 0) // Direction rearward
+    {
+	palClearPad(GPIOB, 11);
+	palSetPad(GPIOB, 12);
+	return;
+    }
+}
+
+/**
+ * 
+ */
+int16_t computeControl(uint16_t setpoint, uint16_t feedback, error_t *err)
+{
+    // Compute new error terms
+    err->errorLast = err->errorP;
+    err->errorP = ((int16_t) setpoint) - feedback;
+    err->errorI += err->errorP;
+    if(err->errorI > INTEGRAL_MAX)
+	err->errorI = INTEGRAL_MAX;
+    else if(err->errorI < -1*INTEGRAL_MAX)
+	err->errorI = -1*INTEGRAL_MAX;
+    err->errorD = err->errorP - err->errorLast;
+    
+    // Compute control command
+}
+
+
 /*
  * Application entry point.
  */
@@ -102,16 +170,18 @@ int main(void)
 
     /* Configure I/O */
     // Serial
-    palSetPadMode(GPIOA, 2, PAL_MODE_STM32_ALTERNATE_PUSHPULL); // Tx
-    palSetPadMode(GPIOA, 3, PAL_MODE_INPUT); // Rx
+    palSetPadMode(GPIOA, 2, PAL_MODE_STM32_ALTERNATE_PUSHPULL); // VCP Tx
+    palSetPadMode(GPIOA, 3, PAL_MODE_INPUT);			// VCP Rx
     
     // Motor Control
-    palSetPadMode(GPIOA, 8, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
-    palSetPadMode(GPIOA, 9, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
-    palSetPadMode(GPIOA, 10, PAL_MODE_OUTPUT_PUSHPULL);
-    palSetPadMode(GPIOA, 11, PAL_MODE_OUTPUT_PUSHPULL);
+    palSetPadMode(GPIOB, 6, PAL_MODE_STM32_ALTERNATE_PUSHPULL); // PWM-EN	PB6
+    palSetPadMode(GPIOA, 11, PAL_MODE_OUTPUT_PUSHPULL);		// Other EN	PA11
+    palSetPadMode(GPIOB, MDIR_A, PAL_MODE_OUTPUT_PUSHPULL); // DIR A Channel	PB11
+    palSetPadMode(GPIOB, MDIR_B, PAL_MODE_OUTPUT_PUSHPULL); // DIR B Channel	PB12
+    palSetPad(GPIOA, 11); // Turn on secondary enable
     
-    palSetPadMode(GPIOA, 0, PAL_MODE_INPUT_ANALOG); // Set ADC input pin
+    // Feedback ADC
+    palSetPadMode(GPIOA, 0, PAL_MODE_INPUT_ANALOG); // Slider pot PA0
     
     /* Serial Port Startup */
     sdStart(&SD2, &ser_cfg);	// Activate VCP USART2 driver
@@ -121,69 +191,76 @@ int main(void)
     //adcStartConversion(&ADCD1, &adcgrpcfg, &samples[0], ADC_BUF_DEPTH);
     
     /* PWM Setup */
-    pwmStart(&PWMD1, &pwmcfg);
-    pwmEnableChannel(&PWMD1, 0, PWM_PERCENTAGE_TO_WIDTH(&PWMD1, 0050));
-    pwmEnableChannel(&PWMD1, 1, PWM_PERCENTAGE_TO_WIDTH(&PWMD1, 0050));
+    pwmStart(&PWMD4, &pwmcfg);
+    pwmEnableChannel(&PWMD4, 0, PWM_PERCENTAGE_TO_WIDTH(&PWMD4, 4000));	// Default duty on EN channel
+    setMotorDirection(1);
     
     uint16_t setpoint;
     uint16_t feedbackValue;
     
-    int16_t err;
-    int16_t err_d;
-    int32_t err_i;
-    int16_t last_err;
     
     int32_t command; 
     uint16_t currentDuty = 0050;
     
-    // TODO Fractional PID
-    int16_t KP = 1;
-    int16_t KI = 1;
-    int16_t KD = 1;
+    uint32_t loopCounter; // Loop counter
     
-    uint32_t loopCounter;
     char out[64];
     out[0] = 'F';
     out[1] = ':';
     out[6] = '\n';
     
+    uint8_t serialIn;
+    uint16_t serialLen;
+    
+    error_t errors;
+    
     while (TRUE) 
     {
 	// Read serial input
-	
+	serialLen = sdAsynchronousRead(&SD2, &serialIn, 1);
+	if(serialLen > 0)
+	{
+	    palTogglePad(GPIOA, GPIOA_LED_GREEN);
+	    switch(serialIn)
+	    {
+		case 'U':
+		    setpoint = 0;
+		    break;
+		case 'D':
+		    setpoint = 300;
+		    break;
+		case 'H':
+		    setpoint = 500;
+		    break;
+		case 'S':
+		    setpoint = 100;
+		    break;
+	    }
+	}
 	// ADC Read of feedback
 	adcConvert(&ADCD1, &adcgrpcfg, samples, ADC_BUF_DEPTH);
 	
-	// TODO: Compute control
+	// Compute control
 	feedbackValue = samples[0];
-	/*
-	last_err = err;
-	err = setpoint - feedbackValue;
-	err_d = err - last_err;
-	err_i += err;
-	if(err_i > INTEGRAL_MAX)
-	{
-	    err_i = INTEGRAL_MAX;
-	}
-	else if(err_i < -INTEGRAL_MAX)
-	{
-	    err_i = -INTEGRAL_MAX;
-	}
-	*/
-	//command = KP * err + KD * err_d + KI * err_i;
-	command = err/10;
+	command = computeControl(setpoint, feedbackValue, &errors);
+	if(command < 0)
+	    setMotorDirection(-1);
+	else
+	    setMotorDirection(1);
 	currentDuty = abs(command);
-	if(currentDuty > 8000)
+	if(currentDuty > 7000)
 	{
-	    currentDuty = 8000;
+	    currentDuty = 7000;
 	}
+	//pwmEnableChannel(&PWMD4, 0, PWM_PERCENTAGE_TO_WIDTH(&PWMD4, currentDuty));//TODO: Set PWM duty for control
 	
 	chThdSleepMilliseconds(50);
 	
 	if((loopCounter % 10) == 0)
 	{
-	    palTogglePad(GPIOA, GPIOA_LED_GREEN);
-	    // Publish data to the serial port
+	    //palTogglePad(GPIOA, GPIOA_LED_GREEN);
+	    
+	    // Format Publish data to the serial port
 	    toHex16Str(feedbackValue, (out + 2));
 	    sdWrite(&SD2, (uint8_t *) out, 7);
 	}
